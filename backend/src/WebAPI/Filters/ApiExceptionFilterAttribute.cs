@@ -17,6 +17,7 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
             { typeof(ForbiddenAccessException), HandleForbiddenAccessException },
             { typeof(NotFoundException), HandleNotFoundException },
             { typeof(BadRequestException), HandleBadRequestException },
+            { typeof(TooManyRequestsException), HandleToManyRequestsException },
         };
 
         _logger = logger;
@@ -76,6 +77,22 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
         context.ExceptionHandled = true;
     }
 
+    private void HandleToManyRequestsException(ExceptionContext context)
+    {
+        var exception = context.Exception as TooManyRequestsException;
+
+        var details = new ProblemDetails()
+        {
+            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+            Title = "Too many requests",
+            Status = StatusCodes.Status429TooManyRequests,
+            Detail = exception.Message
+        };
+
+        context.Result = new ObjectResult(details);
+
+        context.ExceptionHandled = true;
+    }
     private void HandleNotFoundException(ExceptionContext context)
     {
         var exception = context.Exception as NotFoundException;

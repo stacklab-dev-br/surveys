@@ -2,27 +2,17 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using NSwag.Generation.Processors.Security;
 using NSwag;
-using Serilog;
 using System.Text;
 using StackLab.Survey.WebAPI.Filters;
+using StackLab.Survey.Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
+using StackLab.Survey.WebAPI.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add Serilog as default logger
-
-builder.Logging.ClearProviders();
-builder.Host.UseSerilog((hostContext, services, configuration) =>
-{
-    configuration.ReadFrom.Configuration(builder.Configuration);
-});
-
-// Add services to the container.
+CommonConfiguration.ConfigureBuilder(builder);
 
 builder.Services.AddControllers(options => options.Filters.Add<ApiExceptionFilterAttribute>());
-
-builder.Services.AddEndpointsApiExplorer();
-
-builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddAuthentication(opt =>
 {
@@ -39,7 +29,7 @@ builder.Services.AddAuthentication(opt =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = builder.Configuration["TokenSettings:Issuer"],
         ValidAudience = builder.Configuration["TokenSettings:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["TokenSettings:SecurityKey"])),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["TokenSettings:SecurityKey"]!)),
     };
 });
 
@@ -59,7 +49,7 @@ builder.Services.AddOpenApiDocument(configure =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+CommonConfiguration.ConfigureApp(app);
 
 if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
 {
@@ -71,15 +61,33 @@ if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
     });
 
     app.UseStaticFiles();
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+        var context = services.GetRequiredService<ApplicationDbContext>();
+
+        try
+        {
+            context.Database.Migrate();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An error occurred while migrating");
+        }
+
+        try
+        {
+            await ApplicationSeed.SeedSampleDataAsync(context);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An error occurred while seeding the database");
+        }
+    }
 }
-
-app.UseHttpsRedirection();
-
-app.UseAuthentication();
-
-app.UseAuthorization();
-
-app.MapControllers();
 
 app.Run();
 
