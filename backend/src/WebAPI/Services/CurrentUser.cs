@@ -13,7 +13,7 @@ public class CurrentUser : ICurrentUser
     }
 
     public int? Id => int.TryParse(_httpContextAccessor.HttpContext?.User?.FindFirstValue("id"), out int id) ? id : null;
-    public string? Login => _httpContextAccessor.HttpContext?.User?.FindFirstValue("login");
+    public string? Email => _httpContextAccessor.HttpContext?.User?.FindFirstValue("email");
     public string? Name => _httpContextAccessor.HttpContext?.User?.FindFirstValue("name");
 
 }

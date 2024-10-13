@@ -25,17 +25,16 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(256);
 
         builder
-            .Property(x => x.Login)
-            .IsRequired()
-            .HasMaxLength(256);
-
-        builder
             .Property(x => x.Password)
             .IsRequired()
             .HasMaxLength(256);
 
-        builder.Property(x => x.Status).HasConversion(new EnumToStringConverter<Status>());
+        builder.Property(x => x.Status)
+            .HasConversion(new EnumToStringConverter<Status>())
+            .HasMaxLength(16);
 
         builder.HasMany(x => x.VerificationTokens).WithOne(x => x.User).OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasIndex(x => x.Email).IsUnique();
     }
 }

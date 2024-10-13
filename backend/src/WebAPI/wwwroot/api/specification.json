@@ -38,6 +38,38 @@
         }
       }
     },
+    "/auth/sing-up": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "Auth_Register",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/auth/password/reset/{login}": {
       "get": {
         "tags": [
@@ -190,7 +222,22 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "login": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "RegisterCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
             "type": "string"
           },
           "password": {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using StackLab.Survey.Domain.Auth;
+using StackLab.Survey.Domain.Entities;
 
 namespace StackLab.Survey.Infrastructure.Database.Configurations;
 public class VerificationTokenConfiguration : IEntityTypeConfiguration<VerificationToken>

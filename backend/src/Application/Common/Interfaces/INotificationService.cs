@@ -1,4 +1,4 @@
-﻿using StackLab.Survey.Domain.Auth;
+﻿using StackLab.Survey.Domain.Entities;
 
 namespace StackLab.Survey.Application.Common.Interfaces;
 public interface INotificationService

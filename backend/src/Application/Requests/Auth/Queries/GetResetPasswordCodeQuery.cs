@@ -7,7 +7,7 @@ namespace StackLab.Survey.Application.Requests.Auth.Queries;
 
 public class GetResetPasswordCodeQuery : IRequest<Unit>
 {
-    public string Login { get; set; }
+    public string Email { get; set; }
 }
 
 public class GetResetPasswordCodeQueryHandler : IRequestHandler<GetResetPasswordCodeQuery, Unit>
@@ -22,11 +22,11 @@ public class GetResetPasswordCodeQueryHandler : IRequestHandler<GetResetPassword
 
     public async Task<Unit> Handle(GetResetPasswordCodeQuery request, CancellationToken cancellationToken)
     {
-        var login = request.Login?.ToLower().Trim();
+        var email = request.Email?.ToLower().Trim().Replace(" ", "");
 
         var user = await _context.Users
             .Include(x => x.VerificationTokens)
-            .FirstOrDefaultAsync(x => x.Login == login);
+            .FirstOrDefaultAsync(x => x.Email == email);
 
         if (user != null)
         {

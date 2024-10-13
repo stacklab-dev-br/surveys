@@ -12,7 +12,7 @@ using StackLab.Survey.Infrastructure.Database;
 namespace StackLab.Survey.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241012035608_AddUsers")]
+    [Migration("20241013044925_AddUsers")]
     partial class AddUsers
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace StackLab.Survey.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.8")
+                .HasAnnotation("ProductVersion", "8.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
@@ -67,11 +67,6 @@ namespace StackLab.Survey.Infrastructure.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("varchar(256)");
 
-                    b.Property<string>("Login")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("varchar(256)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -87,6 +82,9 @@ namespace StackLab.Survey.Infrastructure.Migrations
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });

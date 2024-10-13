@@ -23,11 +23,9 @@ namespace StackLab.Survey.Infrastructure.Migrations
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Email = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
                     Status = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Login = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false)
+                    Email = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Password = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4")
@@ -61,6 +59,12 @@ namespace StackLab.Survey.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Email",
+                table: "Users",
+                column: "Email",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_VerificationToken_UserId",

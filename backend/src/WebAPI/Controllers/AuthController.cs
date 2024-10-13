@@ -21,12 +21,20 @@ public class AuthController : ApiControllerBase
         return await Mediator.Send(command);
     }
 
+    [HttpPost]
+    [Route("sing-up")]
+    [AllowAnonymous]
+    public async Task<AuthResponse> Register(RegisterCommand command)
+    {
+        return await Mediator.Send(command);
+    }
+
     [HttpGet]
     [Route("password/reset/{login}")]
     [AllowAnonymous]
     public async Task ResetPassword([FromRoute] string login)
     {
-        await Mediator.Send(new GetResetPasswordCodeQuery { Login = login});
+        await Mediator.Send(new GetResetPasswordCodeQuery { Email = login});
     }
 
     [HttpPost]
@@ -34,7 +42,7 @@ public class AuthController : ApiControllerBase
     [AllowAnonymous]
     public async Task ResetPassword([FromRoute] string login, [FromBody] ResetPasswordCommand command)
     {
-        command.SetLogin(login);
+        command.SetEmail(login);
 
         await Mediator.Send(command);
     }

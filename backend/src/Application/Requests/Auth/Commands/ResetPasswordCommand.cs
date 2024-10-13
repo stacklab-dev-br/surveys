@@ -9,17 +9,17 @@ public class ResetPasswordCommand : IRequest<Unit>
     public string Password { get; set; }
     public string Token { get; set; }
 
-    private string Login { get; set; }
+    private string Email { get; set; }
 
-    public void SetLogin(string login)
+    public void SetEmail(string email)
     {
 
-        Login = login;
+        Email = email;
     }
 
-    public string GetLogin()
+    public string GetEmail()
     {
-        return Login;
+        return Email;
     }
 }
 
@@ -37,7 +37,7 @@ public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand,
     {
         var user = await _context.Users
             .Include(x => x.VerificationTokens)
-            .FirstOrDefaultAsync(x => x.Login == request.GetLogin());
+            .FirstOrDefaultAsync(x => x.Email == request.GetEmail());
 
         if (user == null || !user.ValidateToken(request.Token))
         {
@@ -46,7 +46,7 @@ public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand,
 
         user.SetPassword(request.Password);
 
-        user.ClearAllVerificationTokens();
+        user.ClearVerificationTokens(all: true);
 
         await _context.SaveChangesAsync(cancellationToken);
 

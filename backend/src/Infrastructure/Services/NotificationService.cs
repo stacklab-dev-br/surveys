@@ -1,5 +1,5 @@
 ﻿using StackLab.Survey.Application.Common.Interfaces;
-using StackLab.Survey.Domain.Auth;
+using StackLab.Survey.Domain.Entities;
 
 namespace StackLab.Survey.Infrastructure.Services;
 public class NotificationService : INotificationService

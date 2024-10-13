@@ -17,6 +17,7 @@ export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
 export interface IAuthClient {
     login(command: LoginCommand): Observable<AuthResponse>;
+    register(command: RegisterCommand): Observable<AuthResponse>;
     resetPasswordGET(login: string): Observable<void>;
     resetPasswordPOST(login: string, command: ResetPasswordCommand): Observable<void>;
     getChangeEmailCode(): Observable<void>;
@@ -68,6 +69,58 @@ export class AuthClient implements IAuthClient {
     }
 
     protected processLogin(response: HttpResponseBase): Observable<AuthResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AuthResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    register(command: RegisterCommand): Observable<AuthResponse> {
+        let url_ = this.baseUrl + "/auth/sing-up";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRegister(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRegister(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<AuthResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<AuthResponse>;
+        }));
+    }
+
+    protected processRegister(response: HttpResponseBase): Observable<AuthResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -365,7 +418,7 @@ export interface IAuthResponse {
 }
 
 export class LoginCommand implements ILoginCommand {
-    login?: string;
+    email?: string;
     password?: string;
 
     constructor(data?: ILoginCommand) {
@@ -379,7 +432,7 @@ export class LoginCommand implements ILoginCommand {
 
     init(_data?: any) {
         if (_data) {
-            this.login = _data["login"];
+            this.email = _data["email"];
             this.password = _data["password"];
         }
     }
@@ -393,14 +446,58 @@ export class LoginCommand implements ILoginCommand {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["login"] = this.login;
+        data["email"] = this.email;
         data["password"] = this.password;
         return data;
     }
 }
 
 export interface ILoginCommand {
-    login?: string;
+    email?: string;
+    password?: string;
+}
+
+export class RegisterCommand implements IRegisterCommand {
+    name?: string;
+    email?: string;
+    password?: string;
+
+    constructor(data?: IRegisterCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.email = _data["email"];
+            this.password = _data["password"];
+        }
+    }
+
+    static fromJS(data: any): RegisterCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new RegisterCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["email"] = this.email;
+        data["password"] = this.password;
+        return data;
+    }
+}
+
+export interface IRegisterCommand {
+    name?: string;
+    email?: string;
     password?: string;
 }
 

@@ -4,6 +4,6 @@ namespace StackLab.Survey.Application.Common.Interfaces;
 public interface ICurrentUser
 {
     int? Id { get; }
-    string? Login { get; }
+    string? Email { get; }
     string? Name { get; }
 }
