@@ -2,14 +2,14 @@
 <fuse-loading-bar></fuse-loading-bar>
 
 <!-- Navigation -->
-<fuse-vertical-navigation class="dark bg-background-500 print:hidden" [mode]="isScreenSmall ? 'over' : 'side'"
+<fuse-vertical-navigation class="dark bg-gray-800 print:hidden" [mode]="isScreenSmall ? 'over' : 'side'"
     [name]="'mainNavigation'" [navigation]="navigation.default" [opened]="!isScreenSmall">
     <!-- Navigation header hook -->
     <ng-container fuseVerticalNavigationContentHeader>
         <div class="flex w-full items-center p-4 pl-6">
             <!-- Logo -->
             <div class="flex items-center justify-center">
-                <img class="w-8" src="images/logo/logo.svg" />
+                <img class="w-16" src="images/logo/logo.svg" />
             </div>
 
         </div>
